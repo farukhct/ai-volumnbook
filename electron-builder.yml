@@ -1,0 +1,37 @@
+appId: "com.volumnbook.desktop"
+productName: "VolumnBook"
+copyright: "Copyright © 2026 VolumnBook. All rights reserved."
+
+directories:
+  output: "dist_electron"
+  buildResources: "public"
+
+files:
+  - "dist/**/*"
+  - "electron/**/*"
+  - "package.json"
+  - "database/schema.sql"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  executableName: "VolumnBook"
+  artifactName: "VolumnBook-${target}-${version}.${ext}"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: "VolumnBook — Case & Judgement Management"
+  uninstallDisplayName: "VolumnBook Uninstall"
+  runAfterFinish: true
+  artifactName: "VolumnBook-Setup-${version}.${ext}"
+
+portable:
+  artifactName: "VolumnBook-Portable-${version}.${ext}"

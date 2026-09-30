@@ -1,0 +1,6 @@
+{
+  "name": "VolumnBook — Case & Judgement Volume Management",
+  "description": "Production-ready offline Windows desktop application for maintaining case and judgement volume records with SQLite local storage, reports, printing, backup, restore, and multi-format exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
