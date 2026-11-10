@@ -12,12 +12,14 @@ import {
   Layers,
   ArrowRight,
   Upload,
+  Loader2,
 } from 'lucide-react';
 import { VolumeRecord, NavigationModule } from '../types';
 import { db } from '../lib/database';
 import { exportToPdf, exportToDocx, exportToExcel } from '../lib/exportUtils';
 import { exportRecordsToCsv } from '../lib/csvUtils';
 import { useToast } from '../components/Toast';
+import { WorkingModal } from '../components/WorkingModal';
 
 interface ExportViewProps {
   onNavigate: (module: NavigationModule) => void;
@@ -29,6 +31,8 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
   const [exportScope, setExportScope] = useState<'all' | 'with-judgement' | 'pending-section' | 'completed'>('all');
   const [selectedFormat, setSelectedFormat] = useState<'pdf' | 'docx' | 'xls' | 'xlsx' | 'csv'>('csv');
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportStep, setExportStep] = useState<number>(0);
+  const [exportProgress, setExportProgress] = useState<number>(20);
 
   useEffect(() => {
     const load = async () => {
@@ -60,6 +64,9 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
     }
 
     setIsExporting(true);
+    setExportStep(0);
+    setExportProgress(20);
+
     try {
       const scopeTitles = {
         all: 'All Volume Records',
@@ -68,6 +75,16 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
         completed: 'Completed Transmitted Volume Records',
       };
       const title = scopeTitles[exportScope];
+
+      // Step 1: Query & prepare dataset
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setExportStep(1);
+      setExportProgress(45);
+
+      // Step 2: Build layout & compile format
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setExportStep(2);
+      setExportProgress(80);
 
       if (selectedFormat === 'pdf') {
         await exportToPdf(targetRecords, { title });
@@ -85,6 +102,11 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
         exportRecordsToCsv(targetRecords);
         showToast('CSV file (.csv) exported successfully.', 'success');
       }
+
+      // Step 3: Complete & stream
+      setExportStep(3);
+      setExportProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 250));
     } catch (err: any) {
       showToast('Export failed. Please check system resources.', 'error');
     } finally {
@@ -217,10 +239,25 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
           <button
             onClick={handleExecuteExport}
             disabled={isExporting || targetRecords.length === 0}
-            className="flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 rounded-md shadow-xs transition-colors cursor-pointer"
+            className={`flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-all ${
+              isExporting
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white animate-pulse shadow-md cursor-wait'
+                : targetRecords.length === 0
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white cursor-pointer hover:shadow-md'
+            }`}
           >
-            <Download className="w-4 h-4" />
-            <span>{isExporting ? 'Generating Document...' : `Download ${selectedFormat.toUpperCase()} File`}</span>
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Generating {selectedFormat.toUpperCase()} Document...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Download {selectedFormat.toUpperCase()} File</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -249,6 +286,24 @@ export const ExportView: React.FC<ExportViewProps> = ({ onNavigate }) => {
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      {/* Animated Working Modal for Export */}
+      <WorkingModal
+        isOpen={isExporting}
+        title={`Exporting ${selectedFormat.toUpperCase()} Document`}
+        subtitle={`Compiling ${targetRecords.length} records into official ${selectedFormat.toUpperCase()} format...`}
+        iconType="export"
+        steps={[
+          'Querying and filtering volume register records',
+          'Formatting judicial columns, dates and remarks',
+          'Compiling binary document tables & style rules',
+          'Encoding and triggering browser file download',
+        ]}
+        currentStepIndex={exportStep}
+        progressPercent={exportProgress}
+        statusMessage={`Packaging ${selectedFormat.toUpperCase()} output stream...`}
+        details="Your file will be saved directly to your Downloads folder."
+      />
     </div>
   );
 };

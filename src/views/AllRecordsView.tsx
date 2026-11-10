@@ -22,6 +22,9 @@ import {
   X,
   Save,
   RotateCcw,
+  Loader2,
+  Database,
+  Activity,
 } from 'lucide-react';
 import { VolumeRecord, NavigationModule } from '../types';
 import { db } from '../lib/database';
@@ -331,7 +334,31 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
 
       {/* Main Table Grid */}
       <div className="bg-white dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
-        {paginatedRecords.length === 0 ? (
+        {isLoading ? (
+          <div className="p-12 text-center flex flex-col items-center justify-center space-y-4">
+            <div className="relative flex items-center justify-center w-16 h-16">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-20" />
+              <div className="relative p-3.5 bg-blue-50 dark:bg-blue-950/60 rounded-full border border-blue-200 dark:border-blue-800">
+                <Database className="w-7 h-7 text-blue-600 dark:text-blue-400 animate-pulse" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                <span>Reading Volume Records from SQLite...</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Querying database index and preparing view...
+              </p>
+            </div>
+            {/* Animated shimmer skeleton rows */}
+            <div className="w-full max-w-xl space-y-2 pt-2">
+              <div className="h-6 w-full bg-slate-100 dark:bg-slate-700/50 rounded animate-pulse" />
+              <div className="h-6 w-full bg-slate-100 dark:bg-slate-700/40 rounded animate-pulse" />
+              <div className="h-6 w-full bg-slate-100 dark:bg-slate-700/30 rounded animate-pulse" />
+            </div>
+          </div>
+        ) : paginatedRecords.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center">
             <TableProperties className="w-10 h-10 text-slate-300 dark:text-slate-600 mb-2" />
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No records found</h3>

@@ -16,6 +16,7 @@ import {
   Calendar,
   Send,
   X,
+  Loader2,
 } from 'lucide-react';
 import { DatePickerInput } from '../components/DatePickerInput';
 import { db } from '../lib/database';
@@ -375,10 +376,23 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 rounded-md shadow-xs transition-colors"
+              className={`flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-all ${
+                isSubmitting
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white animate-pulse shadow-md cursor-wait'
+                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white cursor-pointer hover:shadow-md'
+              }`}
             >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? 'Saving...' : 'Save Record'}</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                  <span>Writing to Database...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Record (Ctrl+S)</span>
+                </>
+              )}
             </button>
           </div>
         </div>

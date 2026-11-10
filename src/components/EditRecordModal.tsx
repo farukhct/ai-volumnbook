@@ -28,6 +28,7 @@ import {
   Gavel,
   History,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { VolumeRecord } from '../types';
 import { DatePickerInput } from './DatePickerInput';
@@ -580,14 +581,25 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
               <button
                 type="submit"
                 disabled={isSaving || !caseNo.trim()}
-                className={`flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-colors cursor-pointer ${
-                  isSaving || !caseNo.trim()
+                className={`flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-all cursor-pointer ${
+                  isSaving
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white animate-pulse shadow-md cursor-wait'
+                    : !caseNo.trim()
                     ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow-md'
                 }`}
               >
-                <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : 'Save Changes (Ctrl+S)'}</span>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving Changes...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes (Ctrl+S)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

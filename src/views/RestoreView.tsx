@@ -4,10 +4,11 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { RotateCcw, Upload, AlertTriangle, ShieldCheck, FileCheck2, Database } from 'lucide-react';
+import { RotateCcw, Upload, AlertTriangle, ShieldCheck, FileCheck2, Database, Loader2 } from 'lucide-react';
 import { db } from '../lib/database';
 import { useToast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { WorkingModal } from '../components/WorkingModal';
 import { triggerFileDownload } from '../lib/exportUtils';
 import { NavigationModule } from '../types';
 
@@ -26,6 +27,8 @@ export const RestoreView: React.FC<RestoreViewProps> = ({ onNavigate, onRestoreC
   const [createSafetyBackup, setCreateSafetyBackup] = useState<boolean>(true);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [isRestoring, setIsRestoring] = useState<boolean>(false);
+  const [restoreStep, setRestoreStep] = useState<number>(0);
+  const [restoreProgress, setRestoreProgress] = useState<number>(15);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,20 +74,34 @@ export const RestoreView: React.FC<RestoreViewProps> = ({ onNavigate, onRestoreC
   const executeRestore = async () => {
     setShowConfirmModal(false);
     setIsRestoring(true);
+    setRestoreStep(0);
+    setRestoreProgress(15);
 
     try {
-      // 1. Create safety backup of current data if checked
+      // Step 1: Safety backup
       if (createSafetyBackup) {
         const { filename, blob } = await db.createBackup();
         triggerFileDownload(blob, `Safety_PreRestore_${filename}`);
       }
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setRestoreStep(1);
+      setRestoreProgress(45);
 
-      // 2. Perform restoration
+      // Step 2: Validate & prepare
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setRestoreStep(2);
+      setRestoreProgress(75);
+
+      // Step 3: Perform restoration
       const res = await db.restoreDatabase(fileContent!);
       if (!res.success) {
         showToast(res.error || 'Database restore failed.', 'error');
         return;
       }
+
+      setRestoreStep(3);
+      setRestoreProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       showToast(`Database restored successfully (${res.count} records).`, 'success');
       if (onRestoreComplete) onRestoreComplete();
@@ -200,10 +217,25 @@ export const RestoreView: React.FC<RestoreViewProps> = ({ onNavigate, onRestoreC
           <button
             onClick={handleTriggerRestore}
             disabled={!previewInfo?.valid || isRestoring}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 active:bg-amber-800 disabled:opacity-50 rounded-md shadow-xs transition-colors"
+            className={`flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-md shadow-xs transition-all ${
+              isRestoring
+                ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white animate-pulse shadow-md cursor-wait'
+                : !previewInfo?.valid
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
+                : 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white cursor-pointer hover:shadow-md'
+            }`}
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>{isRestoring ? 'Restoring Database...' : 'Restore Database Now'}</span>
+            {isRestoring ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Restoring Database...</span>
+              </>
+            ) : (
+              <>
+                <RotateCcw className="w-4 h-4" />
+                <span>Restore Database Now</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -216,6 +248,24 @@ export const RestoreView: React.FC<RestoreViewProps> = ({ onNavigate, onRestoreC
         isDestructive={true}
         onConfirm={executeRestore}
         onCancel={() => setShowConfirmModal(false)}
+      />
+
+      {/* Animated Working Modal for Database Restoration */}
+      <WorkingModal
+        isOpen={isRestoring}
+        title="Restoring VolumnBook Database"
+        subtitle={`Validating structure and restoring ${previewInfo?.recordCount || 0} records from backup...`}
+        iconType="restore"
+        steps={[
+          'Generating pre-restore safety backup snapshot',
+          'Validating SQLite schema integrity & headers',
+          'Writing records to case database storage',
+          'Rebuilding volume sequences & indexes',
+        ]}
+        currentStepIndex={restoreStep}
+        progressPercent={restoreProgress}
+        statusMessage="Applying backup transactions to SQLite..."
+        details="Do not close or interrupt the restore operation."
       />
     </div>
   );

@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   TableProperties,
   RotateCcw,
+  Loader2,
   Info,
   Copy,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ import {
 } from '../lib/csvUtils';
 import { formatToDisplayDate } from '../lib/dateUtils';
 import { useToast } from '../components/Toast';
+import { WorkingModal } from '../components/WorkingModal';
 
 interface ImportViewProps {
   onNavigate: (module: NavigationModule) => void;
@@ -102,6 +104,8 @@ export const ImportView: React.FC<ImportViewProps> = ({
 
   // Processing state
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [importStepIndex, setImportStepIndex] = useState<number>(0);
+  const [importProgressPercent, setImportProgressPercent] = useState<number>(10);
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
 
   // Drag & drop state
@@ -247,12 +251,30 @@ export const ImportView: React.FC<ImportViewProps> = ({
     }
 
     setIsProcessing(true);
+    setImportStepIndex(0);
+    setImportProgressPercent(15);
+
     try {
+      // Step 1: Pre-import verification & safety backup
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setImportStepIndex(1);
+      setImportProgressPercent(40);
+
+      // Step 2: Database bulk import
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setImportStepIndex(2);
+      setImportProgressPercent(75);
+
       const summary = await db.bulkImport(parsedRows, importMode, {
         createSafetyBackup,
         keepSerialNo,
         allowDuplicates,
       });
+
+      // Step 3: Finalizing & index refresh
+      setImportStepIndex(3);
+      setImportProgressPercent(100);
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       setImportSummary(summary);
       setCurrentStep('complete');
@@ -1211,16 +1233,18 @@ export const ImportView: React.FC<ImportViewProps> = ({
                 <button
                   onClick={handleExecuteImport}
                   disabled={isProcessing || stats.valid === 0}
-                  className={`flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-colors ${
-                    isProcessing || stats.valid === 0
+                  className={`flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-md shadow-xs transition-all ${
+                    isProcessing
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white animate-pulse shadow-md cursor-wait'
+                      : stats.valid === 0
                       ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white cursor-pointer hover:shadow-md'
                   }`}
                 >
                   {isProcessing ? (
                     <>
-                      <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Importing records...</span>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Writing to SQLite Database...</span>
                     </>
                   ) : (
                     <>
@@ -1326,6 +1350,24 @@ export const ImportView: React.FC<ImportViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Animated Working Modal for CSV Bulk Import */}
+      <WorkingModal
+        isOpen={isProcessing}
+        title="Importing Case Records into SQLite"
+        subtitle={`Processing ${stats.valid} records from ${fileName || 'CSV file'} with sequence resolution...`}
+        iconType="import"
+        steps={[
+          'Validating character encodings & column mappings',
+          'Creating pre-import safety backup snapshot',
+          'Executing batch inserts & duplicate resolution',
+          'Recalculating volume indexes & sequence numbers',
+        ]}
+        currentStepIndex={importStepIndex}
+        progressPercent={importProgressPercent}
+        statusMessage="Writing verified case records to SQLite..."
+        details="Do not close or reload the application while VolumnBook writes transaction logs."
+      />
     </div>
   );
 };

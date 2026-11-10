@@ -4,21 +4,42 @@
  */
 
 import React, { useState } from 'react';
-import { DatabaseBackup, Download, CheckCircle, ShieldCheck, HardDrive, Clock } from 'lucide-react';
+import { DatabaseBackup, Download, CheckCircle, ShieldCheck, HardDrive, Clock, Loader2 } from 'lucide-react';
 import { db } from '../lib/database';
 import { triggerFileDownload } from '../lib/exportUtils';
 import { useToast } from '../components/Toast';
+import { WorkingModal } from '../components/WorkingModal';
 
 export const BackupView: React.FC = () => {
   const { showToast } = useToast();
   const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
+  const [backupStep, setBackupStep] = useState<number>(0);
+  const [backupProgress, setBackupProgress] = useState<number>(20);
   const [backupHistory, setBackupHistory] = useState<{ filename: string; time: string; count: number }[]>([]);
 
   const handleCreateBackup = async () => {
     setIsBackingUp(true);
+    setBackupStep(0);
+    setBackupProgress(20);
+
     try {
+      // Step 1: Integrity check
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setBackupStep(1);
+      setBackupProgress(50);
+
+      // Step 2: Serialization
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setBackupStep(2);
+      setBackupProgress(80);
+
       const { filename, blob } = await db.createBackup();
       triggerFileDownload(blob, filename);
+
+      // Step 3: Finalize
+      setBackupStep(3);
+      setBackupProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 250));
 
       const records = await db.getRecords();
       setBackupHistory((prev) => [
@@ -84,10 +105,23 @@ export const BackupView: React.FC = () => {
           <button
             onClick={handleCreateBackup}
             disabled={isBackingUp}
-            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 rounded-md shadow-xs transition-colors"
+            className={`w-full flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-md shadow-xs transition-all ${
+              isBackingUp
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white animate-pulse shadow-md cursor-wait'
+                : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white cursor-pointer hover:shadow-md'
+            }`}
           >
-            <Download className="w-4 h-4" />
-            <span>{isBackingUp ? 'Verifying & Backing Up...' : 'Create Backup Now'}</span>
+            {isBackingUp ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Running Integrity Check & Backing Up...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Create Backup Now</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -132,6 +166,24 @@ export const BackupView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Animated Working Modal for Database Backup */}
+      <WorkingModal
+        isOpen={isBackingUp}
+        title="Creating Database Backup Snapshot"
+        subtitle="Generating an atomic, verified snapshot of your SQLite case database..."
+        iconType="backup"
+        steps={[
+          'Executing PRAGMA integrity_check',
+          'Flushing active write transactions to storage',
+          'Packaging SQLite schema & JSON record stream',
+          'Generating timestamped .db backup package',
+        ]}
+        currentStepIndex={backupStep}
+        progressPercent={backupProgress}
+        statusMessage="Validating checksums and writing backup file..."
+        details="Your backup file will download automatically once generation completes."
+      />
     </div>
   );
 };

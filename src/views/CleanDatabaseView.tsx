@@ -5,10 +5,11 @@
  */
 
 import React, { useState } from 'react';
-import { Trash2, AlertOctagon, ShieldAlert, Download, RefreshCw } from 'lucide-react';
+import { Trash2, AlertOctagon, ShieldAlert, Download, RefreshCw, Loader2 } from 'lucide-react';
 import { db } from '../lib/database';
 import { useToast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { WorkingModal } from '../components/WorkingModal';
 import { triggerFileDownload } from '../lib/exportUtils';
 import { NavigationModule } from '../types';
 
@@ -22,20 +23,36 @@ export const CleanDatabaseView: React.FC<CleanDatabaseViewProps> = ({ onNavigate
   const [createSafetyBackup, setCreateSafetyBackup] = useState<boolean>(true);
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
   const [isCleaning, setIsCleaning] = useState<boolean>(false);
+  const [cleanStep, setCleanStep] = useState<number>(0);
+  const [cleanProgress, setCleanProgress] = useState<number>(15);
 
   const handleClean = async () => {
     setShowConfirm(false);
     setIsCleaning(true);
+    setCleanStep(0);
+    setCleanProgress(15);
 
     try {
-      // 1. Take safety backup if opted in
+      // Step 1: Take safety backup if opted in
       if (createSafetyBackup) {
         const { filename, blob } = await db.createBackup();
         triggerFileDownload(blob, `PreClean_${filename}`);
       }
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setCleanStep(1);
+      setCleanProgress(50);
 
-      // 2. Perform database cleaning
+      // Step 2: Perform database cleaning
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setCleanStep(2);
+      setCleanProgress(75);
+
       await db.cleanDatabase();
+
+      // Step 3: Finalize
+      setCleanStep(3);
+      setCleanProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 250));
 
       showToast('Database cleaned successfully. Record count = 0.', 'success');
       if (onCleanComplete) onCleanComplete();
@@ -105,10 +122,23 @@ export const CleanDatabaseView: React.FC<CleanDatabaseViewProps> = ({ onNavigate
           <button
             onClick={() => setShowConfirm(true)}
             disabled={isCleaning}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 rounded-md shadow-xs transition-colors"
+            className={`flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-md shadow-xs transition-all ${
+              isCleaning
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white animate-pulse shadow-md cursor-wait'
+                : 'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white cursor-pointer hover:shadow-md'
+            }`}
           >
-            <AlertOctagon className="w-4 h-4" />
-            <span>{isCleaning ? 'Purging Database...' : 'Clean Database (Reset Records)'}</span>
+            {isCleaning ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Purging Records & Truncating...</span>
+              </>
+            ) : (
+              <>
+                <AlertOctagon className="w-4 h-4" />
+                <span>Clean Database (Reset Records)</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -121,6 +151,24 @@ export const CleanDatabaseView: React.FC<CleanDatabaseViewProps> = ({ onNavigate
         isDestructive={true}
         onConfirm={handleClean}
         onCancel={() => setShowConfirm(false)}
+      />
+
+      {/* Animated Working Modal for Database Purge */}
+      <WorkingModal
+        isOpen={isCleaning}
+        title="Purging SQLite Database & Resetting Sequence"
+        subtitle="Creating safety backup snapshot and truncating volume records..."
+        iconType="clean"
+        steps={[
+          'Generating pre-clean safety backup snapshot',
+          'Executing SQLite table truncation',
+          'Resetting auto-increment counter sequence to #1',
+          'Reclaiming disk storage and verifying empty state',
+        ]}
+        currentStepIndex={cleanStep}
+        progressPercent={cleanProgress}
+        statusMessage="Zeroing out local database records..."
+        details="Do not close the application while database truncation runs."
       />
     </div>
   );
