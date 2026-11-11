@@ -427,12 +427,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigate, onPrintRep
                   <thead className="bg-blue-950 text-white font-semibold">
                     <tr>
                       <th className="py-2 px-2.5 w-12 text-center border-r border-blue-900">Sl</th>
-                      <th className="py-2 px-3 border-r border-blue-900 min-w-[120px]">Case No</th>
+                      <th className="py-2 px-3 border-r border-blue-900 min-w-[110px]">Case No</th>
                       <th className="py-2 px-2.5 text-center border-r border-blue-900">Judgement Date</th>
                       <th className="py-2 px-2.5 text-center border-r border-blue-900">Draft Date</th>
                       <th className="py-2 px-2.5 text-center border-r border-blue-900">Final Date</th>
-                      <th className="py-2 px-2.5 text-center border-r border-blue-900">Send To Section</th>
-                      <th className="py-2 px-3">Remarks</th>
+                      <th className="py-2 px-2.5 text-center border-r border-blue-900">Sent to Section</th>
+                      <th className="py-2 px-3 border-r border-blue-900">Remarks</th>
+                      <th className="py-2 px-3 min-w-[120px]">Justice Name</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
@@ -456,8 +457,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ onNavigate, onPrintRep
                         <td className="py-1.5 px-2.5 text-center font-mono border-r border-slate-200 dark:border-slate-800">
                           {formatToDisplayDate(r.SendToSectionDate) || '—'}
                         </td>
-                        <td className="py-1.5 px-3 text-slate-600 dark:text-slate-400 truncate max-w-xs">
+                        <td className="py-1.5 px-3 text-slate-600 dark:text-slate-400 truncate max-w-xs border-r border-slate-200 dark:border-slate-800">
                           {r.Remarks || '—'}
+                        </td>
+                        <td className="py-1.5 px-3 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                          {r.JusticeName || '—'}
                         </td>
                       </tr>
                     ))}

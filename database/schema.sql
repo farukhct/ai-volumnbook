@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS VolumeBook (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     SerialNo INTEGER NOT NULL UNIQUE,
     CaseNo TEXT NOT NULL,
+    JusticeName TEXT NULL,          -- Presiding Justice / Judge Name
     JudgementDate TEXT NULL,        -- Format: YYYY-MM-DD
     DraftDate TEXT NULL,            -- Format: YYYY-MM-DD
     FinalDate TEXT NULL,            -- Format: YYYY-MM-DD
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS VolumeBook (
 -- ------------------------------------------------------------------------------
 CREATE UNIQUE INDEX IF NOT EXISTS idx_volumebook_serialno ON VolumeBook (SerialNo);
 CREATE INDEX IF NOT EXISTS idx_volumebook_caseno ON VolumeBook (CaseNo);
+CREATE INDEX IF NOT EXISTS idx_volumebook_justice_name ON VolumeBook (JusticeName);
 CREATE INDEX IF NOT EXISTS idx_volumebook_judgement_date ON VolumeBook (JudgementDate);
 CREATE INDEX IF NOT EXISTS idx_volumebook_draft_date ON VolumeBook (DraftDate);
 CREATE INDEX IF NOT EXISTS idx_volumebook_final_date ON VolumeBook (FinalDate);

@@ -12,6 +12,7 @@ export interface VolumeRecord {
   FinalDate: string | null;         // ISO format YYYY-MM-DD
   SendToSectionDate: string | null; // ISO format YYYY-MM-DD
   Remarks: string | null;
+  JusticeName?: string | null;     // Presiding Justice / Judge Name
   CreatedAt: string;                // ISO timestamp
   UpdatedAt: string | null;         // ISO timestamp
 }
@@ -30,6 +31,7 @@ export interface FilterCriteria {
   sendToSectionDateFrom?: string;
   sendToSectionDateTo?: string;
   remarksKeyword?: string;
+  justiceName?: string;
 }
 
 export type NavigationModule =
@@ -69,24 +71,26 @@ export interface BulkImportOptions {
 }
 
 export interface ColumnMapping {
+  serialNo?: string;
   caseNo: string;
   judgementDate: string;
   draftDate: string;
   finalDate: string;
   sendToSectionDate: string;
   remarks: string;
-  serialNo?: string;
+  justiceName?: string;
 }
 
 export interface ParsedImportRow {
   rowNumber: number;
+  serialNo?: number | null;
   caseNo: string;
   judgementDate: string | null;     // ISO YYYY-MM-DD
   draftDate: string | null;         // ISO YYYY-MM-DD
   finalDate: string | null;         // ISO YYYY-MM-DD
   sendToSectionDate: string | null; // ISO YYYY-MM-DD
   remarks: string | null;
-  serialNo?: number | null;
+  justiceName?: string | null;
   isValid: boolean;
   errors: string[];
   warnings: string[];

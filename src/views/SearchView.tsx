@@ -42,6 +42,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
   // Search filter fields
   const [globalQuery, setGlobalQuery] = useState<string>('');
   const [caseNoQuery, setCaseNoQuery] = useState<string>('');
+  const [justiceQuery, setJusticeQuery] = useState<string>('');
   const [jFrom, setJFrom] = useState<string | null>(null);
   const [jTo, setJTo] = useState<string | null>(null);
   const [dFrom, setDFrom] = useState<string | null>(null);
@@ -71,6 +72,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
       const criteria: FilterCriteria = {
         globalSearch: globalQuery.trim() || undefined,
         caseNo: caseNoQuery.trim() || undefined,
+        justiceName: justiceQuery.trim() || undefined,
         judgementDateFrom: jFrom || undefined,
         judgementDateTo: jTo || undefined,
         draftDateFrom: dFrom || undefined,
@@ -95,6 +97,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
   const handleReset = async () => {
     setGlobalQuery('');
     setCaseNoQuery('');
+    setJusticeQuery('');
     setJFrom(null);
     setJTo(null);
     setDFrom(null);
@@ -254,6 +257,20 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
               />
             </div>
 
+            {/* Justice Name */}
+            <div>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                Justice / Judge Name
+              </label>
+              <input
+                type="text"
+                value={justiceQuery}
+                onChange={(e) => setJusticeQuery(e.target.value)}
+                placeholder="e.g. Justice Rahman"
+                className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-800 dark:text-slate-100"
+              />
+            </div>
+
             {/* Judgement Date Range */}
             <div>
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
@@ -299,7 +316,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
             </div>
 
             {/* Remarks Keyword */}
-            <div className="sm:col-span-2 lg:col-span-3">
+            <div className="sm:col-span-2">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                 Remarks Contains Keyword
               </label>
@@ -378,12 +395,13 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
               <thead className="bg-slate-100 dark:bg-slate-900 sticky top-0 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold select-none">
                 <tr>
                   <th className="py-2.5 px-3 w-16 text-center">Serial No</th>
-                  <th className="py-2.5 px-3 min-w-[140px]">Case No</th>
+                  <th className="py-2.5 px-3 min-w-[130px]">Case No</th>
                   <th className="py-2.5 px-3 text-center">Judgement Date</th>
                   <th className="py-2.5 px-3 text-center">Draft Date</th>
                   <th className="py-2.5 px-3 text-center">Final Date</th>
-                  <th className="py-2.5 px-3 text-center">Send to Section</th>
+                  <th className="py-2.5 px-3 text-center">Sent to Section</th>
                   <th className="py-2.5 px-3 min-w-[160px]">Remarks</th>
+                  <th className="py-2.5 px-3 min-w-[140px]">Justice Name</th>
                   <th className="py-2.5 px-3 text-center w-24">Action</th>
                 </tr>
               </thead>
@@ -410,6 +428,9 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate, onPrintRecor
                     </td>
                     <td className="py-2 px-3 text-slate-500 dark:text-slate-400 max-w-xs truncate" title={r.Remarks || ''}>
                       {r.Remarks || '—'}
+                    </td>
+                    <td className="py-2 px-3 text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap">
+                      {r.JusticeName || '—'}
                     </td>
                     <td className="py-2 px-3 text-center">
                       <div className="flex items-center justify-center gap-1">

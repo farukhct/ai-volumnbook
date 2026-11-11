@@ -304,8 +304,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   <th className="py-2.5 px-4">Judgement Date</th>
                   <th className="py-2.5 px-4">Draft Date</th>
                   <th className="py-2.5 px-4">Final Date</th>
-                  <th className="py-2.5 px-4">Send to Section</th>
+                  <th className="py-2.5 px-4">Sent to Section</th>
                   <th className="py-2.5 px-4">Remarks</th>
+                  <th className="py-2.5 px-4">Justice Name</th>
                   <th className="py-2.5 px-4 text-center w-20">Action</th>
                 </tr>
               </thead>
@@ -332,6 +333,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                     </td>
                     <td className="py-2.5 px-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
                       {r.Remarks || '—'}
+                    </td>
+                    <td className="py-2.5 px-4 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                      {r.JusticeName || '—'}
                     </td>
                     <td className="py-2.5 px-4 text-center">
                       <button

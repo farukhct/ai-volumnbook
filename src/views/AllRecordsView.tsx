@@ -89,6 +89,7 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
         (r) =>
           String(r.SerialNo).includes(term) ||
           r.CaseNo.toLowerCase().includes(term) ||
+          (r.JusticeName && r.JusticeName.toLowerCase().includes(term)) ||
           (r.JudgementDate && r.JudgementDate.toLowerCase().includes(term)) ||
           (r.DraftDate && r.DraftDate.toLowerCase().includes(term)) ||
           (r.FinalDate && r.FinalDate.toLowerCase().includes(term)) ||
@@ -402,7 +403,7 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
 
                   <th
                     onClick={() => handleSort('CaseNo')}
-                    className="py-2.5 px-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors min-w-[140px]"
+                    className="py-2.5 px-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors min-w-[130px]"
                   >
                     <div className="flex items-center gap-1">
                       <span>Case No</span>
@@ -445,12 +446,22 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
                     className="py-2.5 px-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-center w-36"
                   >
                     <div className="flex items-center justify-center gap-1">
-                      <span>Send to Section</span>
+                      <span>Sent to Section</span>
                       <ArrowUpDown className="w-3 h-3 text-slate-400" />
                     </div>
                   </th>
 
                   <th className="py-2.5 px-3 min-w-[160px]">Remarks</th>
+
+                  <th
+                    onClick={() => handleSort('JusticeName')}
+                    className="py-2.5 px-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors min-w-[140px]"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Justice Name</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
 
                   <th className="py-2.5 px-3 text-center w-36 sticky right-0 bg-slate-100 dark:bg-slate-900 shadow-xs">
                     Actions
@@ -505,6 +516,10 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
 
                       <td className="py-2 px-3 text-slate-500 dark:text-slate-400 max-w-xs truncate" title={r.Remarks || ''}>
                         {r.Remarks || '—'}
+                      </td>
+
+                      <td className="py-2 px-3 text-slate-800 dark:text-slate-200 whitespace-nowrap font-medium">
+                        {r.JusticeName || '—'}
                       </td>
 
                       {/* Row Actions */}
@@ -604,7 +619,7 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
             </div>
 
             <div className="p-5 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded border border-slate-200 dark:border-slate-750">
+              <div className="grid grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded border border-slate-200 dark:border-slate-750">
                 <div>
                   <span className="text-[10px] text-slate-400 font-semibold block uppercase">Serial No</span>
                   <span className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100">
@@ -615,6 +630,12 @@ export const AllRecordsView: React.FC<AllRecordsViewProps> = ({ onNavigate, onPr
                   <span className="text-[10px] text-slate-400 font-semibold block uppercase">Case No</span>
                   <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                     {viewingRecord.CaseNo}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-semibold block uppercase">Justice Name</span>
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    {viewingRecord.JusticeName || '—'}
                   </span>
                 </div>
               </div>

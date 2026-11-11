@@ -564,11 +564,33 @@ export const ImportView: React.FC<ImportViewProps> = ({
             <div className="p-5 space-y-4">
               {/* Field mapping rows */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Serial No (Optional) */}
+                <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                      1. SERIAL NO (Optional)
+                    </label>
+                    <span className="text-[10px] text-slate-400">Auto-calculated if blank</span>
+                  </div>
+                  <select
+                    value={mapping.serialNo || ''}
+                    onChange={(e) => setMapping({ ...mapping, serialNo: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">-- None / Auto-generate Sequential SerialNo --</option>
+                    {headers.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Case No (Required) */}
                 <div className="p-3.5 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/20">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1">
-                      <span>CASE NO</span>
+                      <span>2. CASE NO</span>
                       <span className="text-red-500 font-bold">*</span>
                       <span className="text-[10px] text-blue-600 dark:text-blue-400 font-normal ml-1">
                         (Required)
@@ -598,33 +620,11 @@ export const ImportView: React.FC<ImportViewProps> = ({
                   </select>
                 </div>
 
-                {/* Serial No (Optional) */}
-                <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      SERIAL NO (Optional)
-                    </label>
-                    <span className="text-[10px] text-slate-400">Auto-calculated if blank</span>
-                  </div>
-                  <select
-                    value={mapping.serialNo || ''}
-                    onChange={(e) => setMapping({ ...mapping, serialNo: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">-- None / Auto-generate Sequential SerialNo --</option>
-                    {headers.map((h) => (
-                      <option key={h} value={h}>
-                        {h}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 {/* Judgement Date */}
                 <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      JUDGEMENT DATE
+                      3. JUDGEMENT DATE
                     </label>
                     <span className="text-[10px] text-slate-400">dd-MM-yyyy or ISO</span>
                   </div>
@@ -646,7 +646,7 @@ export const ImportView: React.FC<ImportViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      DRAFT DATE
+                      4. DRAFT DATE
                     </label>
                     <span className="text-[10px] text-slate-400">dd-MM-yyyy or ISO</span>
                   </div>
@@ -668,7 +668,7 @@ export const ImportView: React.FC<ImportViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      FINAL DATE
+                      5. FINAL DATE
                     </label>
                     <span className="text-[10px] text-slate-400">dd-MM-yyyy or ISO</span>
                   </div>
@@ -690,7 +690,7 @@ export const ImportView: React.FC<ImportViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      SEND TO SECTION DATE
+                      6. SENT TO SECTION
                     </label>
                     <span className="text-[10px] text-slate-400">dd-MM-yyyy or ISO</span>
                   </div>
@@ -708,17 +708,39 @@ export const ImportView: React.FC<ImportViewProps> = ({
                   </select>
                 </div>
 
-                {/* Remarks (Span 2 columns) */}
-                <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900 md:col-span-2">
+                {/* Remarks */}
+                <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      REMARKS / NOTES
+                      7. REMARKS / NOTES
                     </label>
-                    <span className="text-[10px] text-slate-400">Optional text comments</span>
+                    <span className="text-[10px] text-slate-400">Optional comments</span>
                   </div>
                   <select
                     value={mapping.remarks}
                     onChange={(e) => setMapping({ ...mapping, remarks: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">-- None / Ignore --</option>
+                    {headers.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Justice Name */}
+                <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                      8. JUSTICE NAME
+                    </label>
+                    <span className="text-[10px] text-slate-400">Presiding Judge / Bench</span>
+                  </div>
+                  <select
+                    value={mapping.justiceName || ''}
+                    onChange={(e) => setMapping({ ...mapping, justiceName: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">-- None / Ignore --</option>
@@ -1106,8 +1128,9 @@ export const ImportView: React.FC<ImportViewProps> = ({
                     <th className="py-2.5 px-3">Judgement Date</th>
                     <th className="py-2.5 px-3">Draft Date</th>
                     <th className="py-2.5 px-3">Final Date</th>
-                    <th className="py-2.5 px-3">Section Date</th>
+                    <th className="py-2.5 px-3">Sent to Section</th>
                     <th className="py-2.5 px-3">Remarks</th>
+                    <th className="py-2.5 px-3">Justice Name</th>
                     <th className="py-2.5 px-3">Notes & Diagnostics</th>
                   </tr>
                 </thead>
@@ -1173,6 +1196,10 @@ export const ImportView: React.FC<ImportViewProps> = ({
 
                       <td className="py-2 px-3 text-slate-500 dark:text-slate-400 max-w-xs truncate">
                         {r.remarks || '—'}
+                      </td>
+
+                      <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                        {r.justiceName || '—'}
                       </td>
 
                       <td className="py-2 px-3 text-[11px]">

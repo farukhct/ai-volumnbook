@@ -155,6 +155,7 @@ export function parseCsvText(rawText: string, customDelimiter?: string): CsvPars
 export function autoDetectColumnMapping(headers: string[]): ColumnMapping {
   const mapping: ColumnMapping = {
     caseNo: '',
+    justiceName: '',
     judgementDate: '',
     draftDate: '',
     finalDate: '',
@@ -182,6 +183,23 @@ export function autoDetectColumnMapping(headers: string[]): ColumnMapping {
         c.includes('caseno')
       ) {
         mapping.caseNo = header;
+        return;
+      }
+    }
+
+    // Justice Name
+    if (!mapping.justiceName) {
+      if (
+        c === 'justicename' ||
+        c === 'justice' ||
+        c === 'judge' ||
+        c === 'judgename' ||
+        c === 'presidingjudge' ||
+        c === 'bench' ||
+        c.includes('justice') ||
+        c.includes('judge')
+      ) {
+        mapping.justiceName = header;
         return;
       }
     }
@@ -372,6 +390,10 @@ export function processImportRows(
       dateSeq.warnings.forEach((w) => warnings.push(w));
     }
 
+    // Justice Name
+    const rawJustice = getColVal(row, mapping.justiceName);
+    const justiceName = rawJustice || null;
+
     // Remarks
     const rawRemarks = getColVal(row, mapping.remarks);
     const remarks = rawRemarks || null;
@@ -379,6 +401,7 @@ export function processImportRows(
     parsedRows.push({
       rowNumber,
       caseNo: rawCaseNo,
+      justiceName,
       serialNo,
       judgementDate: jDate,
       draftDate: dDate,
@@ -402,15 +425,15 @@ export function processImportRows(
  */
 export function generateSampleCsv(): string {
   return [
-    'Serial No,Case No,Judgement Date,Draft Date,Final Date,Send To Section Date,Remarks',
-    '1,WP/1042/2023,12-01-2024,18-01-2024,25-01-2024,30-01-2024,Full bench judgement delivered',
-    '2,CRL.A/509/2022,15-02-2024,22-02-2024,28-02-2024,05-03-2024,Appellant acquitted on merit',
-    '3,CIVIL/782/2021,10-03-2024,20-03-2024,29-03-2024,04-04-2024,Decree drawn and sealed',
-    '4,WP/3421/2023,05-04-2024,14-04-2024,,,Awaiting final signature & draft approval',
-    '5,TAX/88/2024,20-04-2024,,,,Judgement dictated in open court',
-    '6,ARB/12/2024,02-05-2024,10-05-2024,18-05-2024,,Final award submitted for review',
-    '7,CONT/441/2023,16-05-2024,24-05-2024,31-05-2024,07-06-2024,Contempt notice disposed with compliance',
-    '8,MAT/910/2022,01-06-2024,12-06-2024,,,Draft prepared by research associate',
+    'Serial No,Case No,Judgement Date,Draft Date,Final Date,Sent to Section,Remarks,Justice Name',
+    '1,WP/1042/2023,12-01-2024,18-01-2024,25-01-2024,30-01-2024,Full bench judgement delivered,Hon. Justice Rahman',
+    '2,CRL.A/509/2022,15-02-2024,22-02-2024,28-02-2024,05-03-2024,Appellant acquitted on merit,Hon. Justice Choudhury',
+    '3,CIVIL/782/2021,10-03-2024,20-03-2024,29-03-2024,04-04-2024,Decree drawn and sealed,Hon. Justice Ahmed',
+    '4,WP/3421/2023,05-04-2024,14-04-2024,,,Awaiting final signature & draft approval,Hon. Justice Hossain',
+    '5,TAX/88/2024,20-04-2024,,,,Judgement dictated in open court,Hon. Justice Roy',
+    '6,ARB/12/2024,02-05-2024,10-05-2024,18-05-2024,,Final award submitted for review,Hon. Justice Khan',
+    '7,CONT/441/2023,16-05-2024,24-05-2024,31-05-2024,07-06-2024,Contempt notice disposed with compliance,Hon. Justice Islam',
+    '8,MAT/910/2022,01-06-2024,12-06-2024,,,Draft prepared by research associate,Hon. Justice Begum',
   ].join('\r\n');
 }
 
@@ -442,8 +465,9 @@ export function exportRecordsToCsv(records: VolumeRecord[], customFilename?: str
     'Judgement Date',
     'Draft Date',
     'Final Date',
-    'Send To Section Date',
+    'Sent to Section',
     'Remarks',
+    'Justice Name',
   ];
 
   const lines = [headers.join(',')];
@@ -457,6 +481,7 @@ export function exportRecordsToCsv(records: VolumeRecord[], customFilename?: str
       escapeCsv(formatToDisplayDate(r.FinalDate)),
       escapeCsv(formatToDisplayDate(r.SendToSectionDate)),
       escapeCsv(r.Remarks || ''),
+      escapeCsv(r.JusticeName || ''),
     ];
     lines.push(row.join(','));
   });

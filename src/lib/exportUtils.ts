@@ -94,35 +94,37 @@ export async function exportToPdf(records: VolumeRecord[], options: ExportReport
       formatToDisplayDate(r.FinalDate) || '—',
       formatToDisplayDate(r.SendToSectionDate) || '—',
       r.Remarks || '',
+      r.JusticeName || '—',
     ]);
 
     autoTable(doc, {
       startY: 38,
-      head: [['Sl', 'Case No', 'Judgement Date', 'Draft Date', 'Final Date', 'Send to Section', 'Remarks']],
+      head: [['Sl', 'Case No', 'Judgement Date', 'Draft Date', 'Final Date', 'Sent to Section', 'Remarks', 'Justice Name']],
       body: tableData,
       theme: 'grid',
       headStyles: {
         fillColor: [30, 58, 138],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 8.5,
+        fontSize: 8,
         halign: 'left',
       },
       styles: {
-        fontSize: 8,
-        cellPadding: 2,
+        fontSize: 7.5,
+        cellPadding: 1.8,
         textColor: [30, 41, 59],
         lineColor: [226, 232, 240],
         lineWidth: 0.1,
       },
       columnStyles: {
-        0: { cellWidth: 12, halign: 'center' },
-        1: { cellWidth: 32, fontStyle: 'bold' },
-        2: { cellWidth: 26, halign: 'center' },
-        3: { cellWidth: 26, halign: 'center' },
-        4: { cellWidth: 26, halign: 'center' },
-        5: { cellWidth: 28, halign: 'center' },
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 28, fontStyle: 'bold' },
+        2: { cellWidth: 24, halign: 'center' },
+        3: { cellWidth: 24, halign: 'center' },
+        4: { cellWidth: 24, halign: 'center' },
+        5: { cellWidth: 26, halign: 'center' },
         6: { cellWidth: 'auto' },
+        7: { cellWidth: 32 },
       },
       didDrawPage: (data) => {
         // Footer on each page
@@ -167,39 +169,44 @@ export async function exportToDocx(records: VolumeRecord[], options: ExportRepor
         tableHeader: true,
         children: [
           new TableCell({
-            width: { size: 8, type: WidthType.PERCENTAGE },
+            width: { size: 6, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Sl', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 20, type: WidthType.PERCENTAGE },
+            width: { size: 16, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Case No', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 14, type: WidthType.PERCENTAGE },
+            width: { size: 12, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Judgement Date', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 14, type: WidthType.PERCENTAGE },
+            width: { size: 12, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Draft Date', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 14, type: WidthType.PERCENTAGE },
+            width: { size: 12, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Final Date', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 15, type: WidthType.PERCENTAGE },
+            width: { size: 13, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
-            children: [new Paragraph({ children: [new TextRun({ text: 'Send to Section', bold: true, color: 'FFFFFF' })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: 'Sent to Section', bold: true, color: 'FFFFFF' })] })],
           }),
           new TableCell({
-            width: { size: 15, type: WidthType.PERCENTAGE },
+            width: { size: 13, type: WidthType.PERCENTAGE },
             shading: { fill: '1E3A8A' },
             children: [new Paragraph({ children: [new TextRun({ text: 'Remarks', bold: true, color: 'FFFFFF' })] })],
+          }),
+          new TableCell({
+            width: { size: 16, type: WidthType.PERCENTAGE },
+            shading: { fill: '1E3A8A' },
+            children: [new Paragraph({ children: [new TextRun({ text: 'Justice Name', bold: true, color: 'FFFFFF' })] })],
           }),
         ],
       }),
@@ -234,6 +241,10 @@ export async function exportToDocx(records: VolumeRecord[], options: ExportRepor
             new TableCell({
               shading: { fill: bg },
               children: [new Paragraph(r.Remarks || '')],
+            }),
+            new TableCell({
+              shading: { fill: bg },
+              children: [new Paragraph(r.JusticeName || '—')],
             }),
           ],
         });
@@ -339,7 +350,7 @@ export async function exportToExcel(records: VolumeRecord[], format: 'xls' | 'xl
       [`Total Records: ${records.length}`],
       [], // blank line
       // Table Header
-      ['Serial No', 'Case No', 'Judgement Date', 'Draft Date', 'Final Date', 'Send To Section Date', 'Remarks', 'Created At'],
+      ['Serial No', 'Case No', 'Judgement Date', 'Draft Date', 'Final Date', 'Sent to Section Date', 'Remarks', 'Justice Name', 'Created At'],
       // Records
       ...records.map((r) => [
         r.SerialNo,
@@ -349,6 +360,7 @@ export async function exportToExcel(records: VolumeRecord[], format: 'xls' | 'xl
         formatToDisplayDate(r.FinalDate) || '',
         formatToDisplayDate(r.SendToSectionDate) || '',
         r.Remarks || '',
+        r.JusticeName || '',
         formatFullDateTime(new Date(r.CreatedAt)),
       ]),
     ];
@@ -362,8 +374,9 @@ export async function exportToExcel(records: VolumeRecord[], format: 'xls' | 'xl
       { wch: 16 }, // Judgement Date
       { wch: 16 }, // Draft Date
       { wch: 16 }, // Final Date
-      { wch: 22 }, // Send To Section Date
+      { wch: 22 }, // Sent To Section Date
       { wch: 40 }, // Remarks
+      { wch: 25 }, // Justice Name
       { wch: 22 }, // Created At
     ];
 

@@ -141,12 +141,13 @@ export const PrintView: React.FC<PrintViewProps> = ({
             <thead>
               <tr className="bg-slate-100 text-slate-900 font-bold border-b border-slate-400">
                 <th className="py-1.5 px-2 border-r border-slate-300 w-10 text-center">Sl</th>
-                <th className="py-1.5 px-3 border-r border-slate-300 min-w-[120px]">Case No</th>
+                <th className="py-1.5 px-3 border-r border-slate-300 min-w-[110px]">Case No</th>
                 <th className="py-1.5 px-2 text-center border-r border-slate-300">Judgement Date</th>
                 <th className="py-1.5 px-2 text-center border-r border-slate-300">Draft Date</th>
                 <th className="py-1.5 px-2 text-center border-r border-slate-300">Final Date</th>
-                <th className="py-1.5 px-2 text-center border-r border-slate-300">Send To Section</th>
-                <th className="py-1.5 px-3">Remarks</th>
+                <th className="py-1.5 px-2 text-center border-r border-slate-300">Sent to Section</th>
+                <th className="py-1.5 px-3 border-r border-slate-300">Remarks</th>
+                <th className="py-1.5 px-3">Justice Name</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -170,8 +171,11 @@ export const PrintView: React.FC<PrintViewProps> = ({
                   <td className="py-1.5 px-2 text-center font-mono border-r border-slate-300 whitespace-nowrap">
                     {formatToDisplayDate(r.SendToSectionDate) || '—'}
                   </td>
-                  <td className="py-1.5 px-3 text-slate-700">
+                  <td className="py-1.5 px-3 text-slate-700 border-r border-slate-300">
                     {r.Remarks || '—'}
+                  </td>
+                  <td className="py-1.5 px-3 text-slate-800 font-medium whitespace-nowrap">
+                    {r.JusticeName || '—'}
                   </td>
                 </tr>
               ))}

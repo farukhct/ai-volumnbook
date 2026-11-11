@@ -43,6 +43,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
   const { showToast } = useToast();
   const [nextSerialNo, setNextSerialNo] = useState<number>(1);
   const [caseNo, setCaseNo] = useState<string>('');
+  const [justiceName, setJusticeName] = useState<string>('');
   const [judgementDate, setJudgementDate] = useState<string | null>(null);
   const [draftDate, setDraftDate] = useState<string | null>(null);
   const [finalDate, setFinalDate] = useState<string | null>(null);
@@ -83,10 +84,11 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [caseNo, judgementDate, draftDate, finalDate, sendToSectionDate, remarks]);
+  }, [caseNo, justiceName, judgementDate, draftDate, finalDate, sendToSectionDate, remarks]);
 
   const handleResetForm = () => {
     setCaseNo('');
+    setJusticeName('');
     setJudgementDate(null);
     setDraftDate(null);
     setFinalDate(null);
@@ -108,6 +110,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
     try {
       const input: VolumeRecordInput = {
         CaseNo: caseNo.trim(),
+        JusticeName: justiceName.trim() ? justiceName.trim() : null,
         JudgementDate: judgementDate,
         DraftDate: draftDate,
         FinalDate: finalDate,
@@ -184,7 +187,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Row 1: Serial No (Disabled display) & Case No (Required) */}
+          {/* Row 1: Serial No & Case No */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between mb-1">
@@ -213,7 +216,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
                   required
                   value={caseNo}
                   onChange={(e) => setCaseNo(e.target.value)}
-                  placeholder="e.g. WP/2026/1042 or CR-982/2026"
+                  placeholder="e.g. WP/2026/1042"
                   className="w-full px-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-500 font-medium"
                 />
                 {caseNo && (
@@ -230,7 +233,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
             </div>
           </div>
 
-          {/* Row 2: Four Sequential Dates Header with Quick Action */}
+          {/* Row 2: Four Sequential Dates: Judgement, Draft, Final, Sent to Section */}
           <div className="pt-2">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -249,7 +252,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
                   showToast('Marked as dispatched to section today.', 'success');
                 }}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 hover:bg-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded transition-colors cursor-pointer"
-                title="Automatically sets Send to Section Date to Today"
+                title="Automatically sets Sent to Section Date to Today"
               >
                 <Send className="w-3 h-3" />
                 <span>Mark Dispatched Today</span>
@@ -259,21 +262,21 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <DatePickerInput
                 id="judgementDate"
-                label="1. JUDGEMENT DATE"
+                label="3. JUDGEMENT DATE"
                 value={judgementDate}
                 onChange={setJudgementDate}
               />
 
               <DatePickerInput
                 id="draftDate"
-                label="2. DRAFT DATE"
+                label="4. DRAFT DATE"
                 value={draftDate}
                 onChange={setDraftDate}
               />
 
               <DatePickerInput
                 id="finalDate"
-                label="3. FINAL DATE"
+                label="5. FINAL DATE"
                 value={finalDate}
                 onChange={setFinalDate}
                 align="right"
@@ -281,7 +284,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
 
               <DatePickerInput
                 id="sendToSectionDate"
-                label="4. SEND TO SECTION DATE"
+                label="6. SENT TO SECTION"
                 value={sendToSectionDate}
                 onChange={setSendToSectionDate}
                 align="right"
@@ -311,7 +314,7 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label htmlFor="remarks" className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                <span>REMARKS</span>
+                <span>7. REMARKS</span>
                 <span className="text-[10px] text-slate-400 font-normal ml-2">Optional</span>
               </label>
               <span className="text-[10px] text-slate-400">
@@ -353,6 +356,34 @@ export const NewEntryView: React.FC<NewEntryViewProps> = ({ onNavigate, onRecord
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* Row 4: Justice Name */}
+          <div className="space-y-1 pt-1">
+            <label htmlFor="justiceName" className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+              <span>8. JUSTICE NAME</span>
+              <span className="text-[10px] text-slate-400 font-normal">Presiding Judge / Bench</span>
+            </label>
+            <div className="relative">
+              <input
+                id="justiceName"
+                type="text"
+                value={justiceName}
+                onChange={(e) => setJusticeName(e.target.value)}
+                placeholder="e.g. Hon. Justice M. Rahman, Bench II"
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-500 font-medium"
+              />
+              {justiceName && (
+                <button
+                  type="button"
+                  onClick={() => setJusticeName('')}
+                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  title="Clear Justice Name"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
         </div>

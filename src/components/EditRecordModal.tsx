@@ -66,6 +66,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
   // Form State
   const [caseNo, setCaseNo] = useState<string>('');
+  const [justiceName, setJusticeName] = useState<string>('');
   const [judgementDate, setJudgementDate] = useState<string | null>(null);
   const [draftDate, setDraftDate] = useState<string | null>(null);
   const [finalDate, setFinalDate] = useState<string | null>(null);
@@ -79,6 +80,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
   useEffect(() => {
     if (record) {
       setCaseNo(record.CaseNo || '');
+      setJusticeName(record.JusticeName || '');
       setJudgementDate(record.JudgementDate || null);
       setDraftDate(record.DraftDate || null);
       setFinalDate(record.FinalDate || null);
@@ -105,13 +107,14 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
     if (!record) return false;
     return (
       caseNo !== record.CaseNo ||
+      justiceName !== (record.JusticeName || '') ||
       (judgementDate || null) !== (record.JudgementDate || null) ||
       (draftDate || null) !== (record.DraftDate || null) ||
       (finalDate || null) !== (record.FinalDate || null) ||
       (sendToSectionDate || null) !== (record.SendToSectionDate || null) ||
       remarks !== (record.Remarks || '')
     );
-  }, [record, caseNo, judgementDate, draftDate, finalDate, sendToSectionDate, remarks]);
+  }, [record, caseNo, justiceName, judgementDate, draftDate, finalDate, sendToSectionDate, remarks]);
 
   // Current Case Stage Classification
   const currentStage = React.useMemo(() => {
@@ -154,6 +157,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
   const handleRevert = () => {
     if (!record) return;
     setCaseNo(record.CaseNo || '');
+    setJusticeName(record.JusticeName || '');
     setJudgementDate(record.JudgementDate || null);
     setDraftDate(record.DraftDate || null);
     setFinalDate(record.FinalDate || null);
@@ -196,6 +200,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
     try {
       await onSave(record.Id, {
         CaseNo: caseNo.trim(),
+        JusticeName: justiceName.trim() || null,
         JudgementDate: judgementDate,
         DraftDate: draftDate,
         FinalDate: finalDate,
@@ -227,7 +232,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, caseNo, judgementDate, draftDate, finalDate, sendToSectionDate, remarks, record]);
+  }, [isOpen, caseNo, justiceName, judgementDate, draftDate, finalDate, sendToSectionDate, remarks, record]);
 
   if (!isOpen || !record) return null;
 
@@ -360,7 +365,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
         {/* Modal Body Form */}
         <form onSubmit={handleSave} className="p-6 space-y-5 overflow-visible">
-          {/* Section 1: Identification */}
+          {/* Section 1: Serial No & Case No */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Serial No Display */}
             <div>
@@ -384,11 +389,11 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
                   required
                   value={caseNo}
                   onChange={(e) => setCaseNo(e.target.value)}
-                  placeholder="e.g. WP/1042/2024, CRL.A/509/2023"
+                  placeholder="e.g. WP/1042/2024"
                   className={`w-full px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-800 border rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     !caseNo.trim()
-                      ? 'border-red-400 dark:border-red-600'
-                      : 'border-slate-300 dark:border-slate-700'
+                       ? 'border-red-400 dark:border-red-600'
+                       : 'border-slate-300 dark:border-slate-700'
                   }`}
                 />
                 {caseNo && (
@@ -405,7 +410,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
             </div>
           </div>
 
-          {/* Section 2: Chronological Judicial Dates */}
+          {/* Section 2: Chronological Judicial Dates (Judgement, Draft, Final, Sent to Section) */}
           <div className="p-4 bg-slate-50 dark:bg-slate-850/80 rounded-lg border border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
@@ -423,7 +428,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
                 type="button"
                 onClick={handleMarkDispatchedToday}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 hover:bg-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded transition-colors self-start sm:self-auto cursor-pointer"
-                title="Automatically sets Send to Section Date to Today"
+                title="Automatically sets Sent to Section Date to Today"
               >
                 <Send className="w-3 h-3" />
                 <span>Mark Dispatched Today</span>
@@ -434,7 +439,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
               <DatePickerInput
                 id="edit-judgement-date"
-                label="1. Judgement Date"
+                label="3. Judgement Date"
                 value={judgementDate}
                 onChange={setJudgementDate}
                 align="left"
@@ -442,7 +447,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
               <DatePickerInput
                 id="edit-draft-date"
-                label="2. Draft Date"
+                label="4. Draft Date"
                 value={draftDate}
                 onChange={setDraftDate}
                 align="left"
@@ -450,7 +455,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
               <DatePickerInput
                 id="edit-final-date"
-                label="3. Final Date"
+                label="5. Final Date"
                 value={finalDate}
                 onChange={setFinalDate}
                 align="right"
@@ -458,7 +463,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
 
               <DatePickerInput
                 id="edit-send-to-section-date"
-                label="4. Send To Section"
+                label="6. Sent to Section"
                 value={sendToSectionDate}
                 onChange={setSendToSectionDate}
                 align="right"
@@ -485,7 +490,7 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                <span>Remarks / Court Notes</span>
+                <span>7. Remarks / Court Notes</span>
                 <span className="text-[10px] text-slate-400 font-normal">(Optional)</span>
               </label>
               <span className="text-[10px] text-slate-400">
@@ -519,6 +524,32 @@ export const EditRecordModal: React.FC<EditRecordModalProps> = ({
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* Section 4: Justice Name */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 block mb-1">
+              8. Justice Name
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={justiceName}
+                onChange={(e) => setJusticeName(e.target.value)}
+                placeholder="e.g. Hon. Justice Rahman"
+                className="w-full px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              {justiceName && (
+                <button
+                  type="button"
+                  onClick={() => setJusticeName('')}
+                  className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  title="Clear Justice Name"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 

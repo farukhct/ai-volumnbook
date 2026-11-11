@@ -80,12 +80,13 @@ class DatabaseService {
       return result.sort((a, b) => b.SerialNo - a.SerialNo);
     }
 
-    // Global Search across Serial No, Case No, Dates, Remarks
+    // Global Search across Serial No, Case No, Justice Name, Dates, Remarks
     if (filters.globalSearch && filters.globalSearch.trim() !== '') {
       const term = filters.globalSearch.trim().toLowerCase();
       result = result.filter((r) => {
         const serialStr = String(r.SerialNo);
         const caseNoStr = r.CaseNo.toLowerCase();
+        const justiceStr = (r.JusticeName || '').toLowerCase();
         const jDate = (r.JudgementDate || '').toLowerCase();
         const dDate = (r.DraftDate || '').toLowerCase();
         const fDate = (r.FinalDate || '').toLowerCase();
@@ -95,6 +96,7 @@ class DatabaseService {
         return (
           serialStr.includes(term) ||
           caseNoStr.includes(term) ||
+          justiceStr.includes(term) ||
           jDate.includes(term) ||
           dDate.includes(term) ||
           fDate.includes(term) ||
@@ -108,6 +110,11 @@ class DatabaseService {
     if (filters.caseNo && filters.caseNo.trim() !== '') {
       const term = filters.caseNo.trim().toLowerCase();
       result = result.filter((r) => r.CaseNo.toLowerCase().includes(term));
+    }
+
+    if (filters.justiceName && filters.justiceName.trim() !== '') {
+      const term = filters.justiceName.trim().toLowerCase();
+      result = result.filter((r) => (r.JusticeName || '').toLowerCase().includes(term));
     }
 
     if (filters.judgementDateFrom) {
@@ -178,6 +185,7 @@ class DatabaseService {
       Id: nextId,
       SerialNo: nextSerial,
       CaseNo: input.CaseNo.trim(),
+      JusticeName: input.JusticeName ? input.JusticeName.trim() : null,
       JudgementDate: input.JudgementDate || null,
       DraftDate: input.DraftDate || null,
       FinalDate: input.FinalDate || null,
@@ -189,7 +197,7 @@ class DatabaseService {
 
     this.memoryRecords.push(newRecord);
     this.persist();
-    logger.info('DATABASE', `Record added: SerialNo=${newRecord.SerialNo}, CaseNo="${newRecord.CaseNo}"`);
+    logger.info('DATABASE', `Record added: SerialNo=${newRecord.SerialNo}, CaseNo="${newRecord.CaseNo}", Justice="${newRecord.JusticeName || 'N/A'}"`);
 
     return { ...newRecord };
   }
@@ -215,6 +223,7 @@ class DatabaseService {
     const updated: VolumeRecord = {
       ...current,
       CaseNo: updates.CaseNo !== undefined ? updates.CaseNo.trim() : current.CaseNo,
+      JusticeName: updates.JusticeName !== undefined ? (updates.JusticeName ? updates.JusticeName.trim() : null) : current.JusticeName,
       JudgementDate: updates.JudgementDate !== undefined ? updates.JudgementDate : current.JudgementDate,
       DraftDate: updates.DraftDate !== undefined ? updates.DraftDate : current.DraftDate,
       FinalDate: updates.FinalDate !== undefined ? updates.FinalDate : current.FinalDate,
@@ -225,7 +234,7 @@ class DatabaseService {
 
     this.memoryRecords[index] = updated;
     this.persist();
-    logger.info('DATABASE', `Record updated: Id=${id}, SerialNo=${updated.SerialNo}, CaseNo="${updated.CaseNo}"`);
+    logger.info('DATABASE', `Record updated: Id=${id}, SerialNo=${updated.SerialNo}, CaseNo="${updated.CaseNo}", Justice="${updated.JusticeName || 'N/A'}"`);
 
     return { ...updated };
   }
@@ -463,6 +472,7 @@ class DatabaseService {
           Id: idx + 1,
           SerialNo: serialNo,
           CaseNo: row.caseNo.trim(),
+          JusticeName: row.justiceName ? row.justiceName.trim() : null,
           JudgementDate: row.judgementDate || null,
           DraftDate: row.draftDate || null,
           FinalDate: row.finalDate || null,
@@ -520,6 +530,7 @@ class DatabaseService {
           Id: nextId++,
           SerialNo: serialToAssign,
           CaseNo: row.caseNo.trim(),
+          JusticeName: row.justiceName ? row.justiceName.trim() : null,
           JudgementDate: row.judgementDate || null,
           DraftDate: row.draftDate || null,
           FinalDate: row.finalDate || null,
@@ -556,6 +567,7 @@ class DatabaseService {
 
         if (existing) {
           // Update non-empty fields
+          if (row.justiceName) existing.JusticeName = row.justiceName.trim();
           if (row.judgementDate) existing.JudgementDate = row.judgementDate;
           if (row.draftDate) existing.DraftDate = row.draftDate;
           if (row.finalDate) existing.FinalDate = row.finalDate;
@@ -580,6 +592,7 @@ class DatabaseService {
             Id: nextId++,
             SerialNo: serialToAssign,
             CaseNo: row.caseNo.trim(),
+            JusticeName: row.justiceName ? row.justiceName.trim() : null,
             JudgementDate: row.judgementDate || null,
             DraftDate: row.draftDate || null,
             FinalDate: row.finalDate || null,
